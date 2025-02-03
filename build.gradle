@@ -1,203 +1,132 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'maven-publish'
+    id 'signing'
+    id 'idea'
+    id 'eclipse'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
 
-buildscript {
-    repositories {
-        maven { url "http://repo.spring.io/plugins-release" };
-        mavenCentral();
-        jcenter();
-    }
-    dependencies {
-        classpath(group: "org.springframework.build.gradle",
-            name: "propdeps-plugin", version: "0.0.7");
-        classpath(group: "info.solidsoft.gradle.pitest",
-            name: "gradle-pitest-plugin", version: "1.1.9");
-        classpath(group: "com.github.jengelman.gradle.plugins",
-            name:"shadow", version:"1.2.3");
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
-apply(plugin: "java");
-apply(plugin: "maven");
-apply(plugin: "signing");
-apply(plugin: "osgi");
-apply(plugin: "idea");
-apply(plugin: "eclipse");
-apply(plugin: "propdeps");
-apply(plugin: "propdeps-maven");
-apply(plugin: "propdeps-idea");
-apply(plugin: "propdeps-eclipse");
-apply(plugin: "info.solidsoft.pitest");
-apply(plugin: "com.github.johnrengelman.shadow");
-
-group = "com.github.fge";
-description = "Write parsers in pure Java";
-version = "2.1.0-beta.4-SNAPSHOT";
-
-def javaVersion = JavaVersion.VERSION_1_8;
-sourceCompatibility = javaVersion;
-targetCompatibility = javaVersion; // defaults to sourceCompatibility
-
 repositories {
-    mavenCentral();
+    mavenCentral()
 }
 
 dependencies {
-    provided(group: "com.google.code.findbugs", name: "jsr305",
-        version: "3.0.1");
-    compile(group: "org.ow2.asm", name: "asm-debug-all", version: "5.0.4");
-    compile(group: "com.google.guava", name: "guava", version: "19.0");
-    compile(group: "me.qmx.jitescript", name: "jitescript", version: "0.4.0");
-    testCompile(group: "org.testng", name: "testng", version: "6.9.10") {
-        exclude(group: "org.apache.ant", module: "ant");
-        exclude(group: "com.google.inject", module: "guice");
-        exclude(group: "junit", module: "junit");
-        exclude(group: "org.beanshell", module: "bsh");
-        exclude(group: "org.yaml", module: "snakeyaml");
-    };
-    testCompile(group: "org.mockito", name: "mockito-core", version: "1.10.19");
-    testCompile(group: "org.assertj", name: "assertj-core", version: "2.3.0");
-}
+    implementation "org.jetbrains:annotations:24.0.1"
 
-javadoc.options.links("http://docs.oracle.com/javase/7/docs/api/");
-javadoc.options.links("http://jsr-305.googlecode.com/svn/trunk/javadoc/");
-javadoc.options.links("http://asm.ow2.org/asm50/javadoc/user/");
-javadoc.options.links("http://docs.guava-libraries.googlecode.com/git-history/v18.0/javadoc/");
+    implementation("org.ow2.asm:asm:9.5")
+    implementation("org.ow2.asm:asm-util:9.5")
+    implementation("org.ow2.asm:asm-commons:9.5")
+    implementation("org.ow2.asm:asm-tree:9.5")
+
+    implementation "com.google.guava:guava:32.1.2-jre"
+    // JiteScript depends on asm-all, but ASM 9+ does not provide asm-all
+    implementation("me.qmx.jitescript:jitescript:0.4.1") {
+        exclude group: "org.ow2.asm", module: "asm-all" // Exclude old ASM
+        exclude group: "org.ow2.asm", module: "asm"      // Exclude any older version
+    }
+    testImplementation("org.testng:testng:7.9.0") {
+        exclude group: "org.apache.ant", module: "ant"
+        exclude group: "com.google.inject", module: "guice"
+        exclude group: "junit", module: "junit"
+        exclude group: "org.beanshell", module: "bsh"
+        exclude group: "org.yaml", module: "snakeyaml"
+    }
+
+    testImplementation "org.mockito:mockito-core:5.7.0"
+
+    testImplementation "org.assertj:assertj-core:3.24.2"
+
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("ch.qos.logback:logback-classic:1.4.11") // Replaces slf4j-simple
+}
 
 test {
     useTestNG() {
-        useDefaultListeners = true;
-    };
+        suiteXmlFiles = [] // Ensure TestNG XML files are correctly configured
+        useDefaultListeners = true
+    }
+    jvmArgs([
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
+        "--add-opens=java.base/java.io=ALL-UNNAMED",
+    ])
 }
 
-/*
- * Necessary to generate the source and javadoc jars
- */
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources";
-    from sourceSets.main.allSource;
+tasks.withType(Test).configureEach {
+    useTestNG()
+    jvmArgs([
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
+    ])
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = "javadoc";
-    from javadoc.destinationDir;
+tasks.withType(Jar).configureEach {
+    manifest {
+        attributes["Implementation-Title"] = project.name
+        attributes["Implementation-Version"] = project.version
+    }
+}
+
+application {
+    mainClass = 'com.github.fge.Main'
 }
 
 shadowJar {
-    relocate("com.google.common", "r.com.google.common");
+    relocate("com.google.common", "relocated.com.google.common")
 }
 
-artifacts {
-    archives jar;
-    archives sourcesJar;
-    archives javadocJar;
-    archives shadowJar;
+tasks.register("sourcesJar", Jar) {
+    dependsOn classes
+    archiveClassifier.set("sources")
+    from sourceSets.main.allSource
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "2.12";
-    distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip";
+tasks.register("javadocJar", Jar) {
+    dependsOn javadoc
+    archiveClassifier.set("javadoc")
+    from javadoc.destinationDir
 }
 
-task pom << {
-    pom {}.writeTo("${projectDir}/pom.xml");
-}
-
-/*
- * SIGNING
- */
-
-project.ext {
-    gitrwscm = sprintf("git@github.com:fge/%s", name);
-    gitroscm = sprintf("https://github.com/fge/%s.git", name);
-    projectURL = sprintf("https://github.com/fge/%s", name);
-    sonatypeStaging = "https://oss.sonatype.org/service/local/staging/deploy/maven2/";
-    sonatypeSnapshots = "https://oss.sonatype.org/content/repositories/snapshots/";
-};
-
-task checkSigningRequirements << {
-    def requiredProperties = [ "sonatypeUsername", "sonatypePassword" ];
-    def noDice = false;
-    requiredProperties.each {
-        if (project.properties[it] == null) {
-            noDice = true;
-            System.err.printf("property \"%s\" is not defined!", it);
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
         }
     }
-    if (noDice)
-        throw new IllegalStateException("missing required properties for " +
-            "upload");
-}
-
-task enforceVersion << {
-    def foundVersion = JavaVersion.current();
-    if (foundVersion != javaVersion)
-        throw new IllegalStateException("Wrong java version; required is " +
-            javaVersion + ", but found " + foundVersion);
-}
-
-uploadArchives {
-    dependsOn(enforceVersion, checkSigningRequirements);
     repositories {
-        mavenDeployer {
-            beforeDeployment {
-                MavenDeployment deployment -> signing.signPom(deployment);
-            }
-
-            repository(url: "${sonatypeStaging}") {
-                authentication(
-                    userName: project.properties["sonatypeUsername"],
-                    password: project.properties["sonatypePassword"]
-                );
-            }
-
-            snapshotRepository(url: "${sonatypeSnapshots}") {
-                authentication(
-                    userName: project.properties["sonatypeUsername"],
-                    password: project.properties["sonatypePassword"]
-                );
+        maven {
+            name = "sonatype"
+            url = version.endsWith("SNAPSHOT") ?
+                "https://oss.sonatype.org/content/repositories/snapshots/" :
+                "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = project.findProperty("sonatypeUsername") ?: ""
+                password = project.findProperty("sonatypePassword") ?: ""
             }
         }
     }
 }
 
-/*
- * Configure pom.xml on install, uploadArchives
- */
-[
-    install.repositories.mavenInstaller,
-    uploadArchives.repositories.mavenDeployer
-]*.pom*.whenConfigured { pom ->
-    pom.project {
-        name "${project.name}";
-        description "${project.description}";
-        packaging "jar";
-        url "${projectURL}";
-
-        scm {
-            url "${gitrwscm}";
-            connection "${gitrwscm}";
-            developerConnection "${gitroscm}";
-        }
-
-        licenses {
-            license {
-                name "Apache Software License, version 2.0";
-                url "http://www.apache.org/licenses/LICENSE-2.0";
-                distribution "repo";
-            }
-        }
-
-        developers {
-            developer {
-                id "fge";
-                name "Francis Galiegue";
-                email "fgaliegue@gmail.com";
-            }
-        }
-    }
-}
-
-ext.forRelease = !version.endsWith("-SNAPSHOT");
 signing {
-    required { forRelease && gradle.taskGraph.hasTask("uploadArchives") };
-    sign configurations.archives;
+    required { gradle.taskGraph.hasTask("publish") }
+    sign publishing.publications.mavenJava
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == "org.ow2.asm") {
+            details.useVersion "9.5"
+        }
+    }
 }

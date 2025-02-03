@@ -47,7 +47,7 @@ public final class ParserClassNode
 
     public ParserClassNode(final Class<?> parentClass)
     {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM9);
         this.parentClass = Objects.requireNonNull(parentClass);
         parentType = Type.getType(parentClass);
     }

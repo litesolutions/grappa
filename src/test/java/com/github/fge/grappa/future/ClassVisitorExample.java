@@ -26,7 +26,7 @@ public class ClassVisitorExample
 
     public ClassVisitorExample(final ClassVisitor cv)
     {
-        super(Opcodes.ASM5, cv);
+        super(Opcodes.ASM9, cv);
     }
 
     public static void findAreturnBlocks(final Path path)
@@ -55,7 +55,7 @@ public class ClassVisitorExample
             signature, exceptions);
         */
 
-        return new MethodNode(Opcodes.ASM5, access, name, desc, signature,
+        return new MethodNode(Opcodes.ASM9, access, name, desc, signature,
             exceptions)
         {
             @Override

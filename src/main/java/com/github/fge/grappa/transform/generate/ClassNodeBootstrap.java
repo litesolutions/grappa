@@ -73,7 +73,7 @@ public final class ClassNodeBootstrap
     public ClassNodeBootstrap(final ParserClassNode classNode,
         final ClassLoaderList classLoaders)
     {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM9);
         this.classNode = classNode;
         this.classLoaders = classLoaders;
     }

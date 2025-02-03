@@ -10,14 +10,13 @@ import org.testng.annotations.Test;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public final class RangeMatcherBuilderTest
 {
@@ -67,7 +66,7 @@ public final class RangeMatcherBuilderTest
         builder.range(Range.atLeast(cycles));
 
         verify(builder).boundedDown(cycles);
-        verifyZeroInteractions(parser);
+        verifyNoInteractions(parser);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -96,7 +95,7 @@ public final class RangeMatcherBuilderTest
         builder.max(cycles);
 
         verify(builder).boundedUp(cycles);
-        verifyZeroInteractions(parser);
+        verifyNoInteractions(parser);
     }
 
     @Test(dependsOnMethods = "maxDelegateTest")
@@ -143,7 +142,7 @@ public final class RangeMatcherBuilderTest
         builder.times(cycles);
 
         verify(builder).exactly(cycles);
-        verifyZeroInteractions(parser);
+        verifyNoInteractions(parser);
     }
 
     @Test(dependsOnMethods = "singleArgumentTimeDelegateTest")
@@ -161,7 +160,7 @@ public final class RangeMatcherBuilderTest
         final Rule actual = builder.times(1);
 
         verify(builder, never()).exactly(anyInt());
-        verifyZeroInteractions(parser);
+        verifyNoInteractions(parser);
         assertThat(actual).isSameAs(rule);
     }
 
@@ -193,7 +192,7 @@ public final class RangeMatcherBuilderTest
         builder.times(minCycles, maxCycles);
 
         verify(builder).boundedBoth(minCycles, maxCycles);
-        verifyZeroInteractions(parser);
+        verifyNoInteractions(parser);
     }
 
     @Test(dependsOnMethods = "twoArgumentsTimesDelegateTest")
@@ -220,7 +219,7 @@ public final class RangeMatcherBuilderTest
         final Rule actual = builder.times(1, 1);
 
         verify(builder, never()).boundedBoth(anyInt(), anyInt());
-        verifyZeroInteractions(parser);
+        verifyNoInteractions(parser);
         assertThat(actual).isSameAs(rule);
     }
 

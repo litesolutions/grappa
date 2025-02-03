@@ -15,7 +15,7 @@ public final class ValueStackResetTest
     private static final Object VALUE1 = new Object();
     private static final Object VALUE2 = new Object();
 
-    private static final Supplier<Object> SUPPLIER = new Supplier<Object>()
+    public static final Supplier<Object> SUPPLIER = new Supplier<Object>()
     {
         private boolean firstConsumed = false;
 

@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
-import static com.github.fge.grappa.util.CustomAssertions.shouldHaveThrown;
+import static com.github.fge.grappa.util.CustomAssertions.expectException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ParametersAreNonnullByDefault
@@ -38,7 +38,7 @@ public abstract class IllegalGrammarTest
     {
         try {
             parser.illegal();
-            shouldHaveThrown(InvalidGrammarException.class);
+            expectException(InvalidGrammarException.class);
         } catch (InvalidGrammarException e) {
             assertThat(e).isExactlyInstanceOf(InvalidGrammarException.class)
                 .hasMessage(errorMessage);

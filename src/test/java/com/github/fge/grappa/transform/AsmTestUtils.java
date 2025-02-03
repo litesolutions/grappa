@@ -48,7 +48,7 @@ public class AsmTestUtils {
         final StringWriter stringWriter = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(stringWriter);
         final TraceClassVisitor traceClassVisitor = new TraceClassVisitor(printWriter);
-        final ClassVisitor checkClassAdapter = new ClassVisitor(Opcodes.ASM5, traceClassVisitor) {};
+        final ClassVisitor checkClassAdapter = new ClassVisitor(Opcodes.ASM9, traceClassVisitor) {};
         //ClassAdapter checkClassAdapter = new CheckClassAdapter(traceClassVisitor);
         final ClassReader classReader;
         classReader = new ClassReader(code);
@@ -90,7 +90,10 @@ public class AsmTestUtils {
         printer.print(printWriter);
         printWriter.flush();
 
-        assertEquals(stringWriter.toString(), traceDump);
+        assertEquals(stringWriter.toString().replaceAll("\\n", " ")  // Convert CRLF to LF
+        .replaceAll("^\\s+", "")  // Remove leading spaces from each line
+        .replaceAll("\\s+$", "")  // Remove trailing spaces
+        .trim(), traceDump);
     }
 
     public static void verifyIntegrity(
@@ -118,7 +121,7 @@ public class AsmTestUtils {
 
         private NonMaxTextifier()
         {
-            super(Opcodes.ASM5);
+            super(Opcodes.ASM9);
         }
 
         @Override

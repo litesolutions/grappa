@@ -27,12 +27,14 @@ import com.github.fge.grappa.rules.Rule;
 import com.github.fge.grappa.transform.base.InstructionGraphNode;
 import com.github.fge.grappa.transform.base.RuleMethod;
 import com.google.common.base.Preconditions;
+
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
-
+import org.objectweb.asm.tree.analysis.Value;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +47,7 @@ public final class RuleMethodInterpreter
 
     public RuleMethodInterpreter(final RuleMethod method)
     {
+        super(Opcodes.ASM9);  // Ensure ASM9 compatibility
         this.method = method;
     }
 
@@ -106,8 +109,7 @@ public final class RuleMethodInterpreter
     }
 
     @Override
-    public BasicValue naryOperation(final AbstractInsnNode insn,
-        final List<? extends BasicValue> values)
+    public BasicValue naryOperation(final AbstractInsnNode insn, List<? extends BasicValue> values)
         throws AnalyzerException
     {
         return createNode(insn, super.naryOperation(insn, null),

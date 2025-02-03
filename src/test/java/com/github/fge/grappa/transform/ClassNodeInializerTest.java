@@ -33,7 +33,7 @@ public class ClassNodeInializerTest extends TransformationTest
 
     @BeforeClass
     public void setup() throws IOException {
-        setup(TestParser.class);
+        initializeParserClass(TestParser.class);
     }
 
     @Test(enabled = false)

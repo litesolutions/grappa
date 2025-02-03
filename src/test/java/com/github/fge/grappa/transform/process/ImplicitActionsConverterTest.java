@@ -37,67 +37,15 @@ public class ImplicitActionsConverterTest extends TransformationTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        setup(TestParser.class);
+        initializeParserClass(TestParser.class);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testReturnInstructionUnification() throws Exception {
-        assertTraceDumpEquality(processMethod("RuleWithIndirectImplicitAction", processors), "" +
-                "    ALOAD 0\n" +
-                "    BIPUSH 97\n" +
-                "    INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;\n" +
-                "    BIPUSH 98\n" +
-                "    INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;\n" +
-                "    ICONST_1\n" +
-                "    ANEWARRAY java/lang/Object\n" +
-                "    DUP\n" +
-                "    ICONST_0\n" +
-                "    ALOAD 0\n" +
-                "    INVOKEVIRTUAL com/github/fge/grappa/transform/TestParser.action ()Z\n" +
-                "    IFNE L0\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/TestParser.integer : I\n" +
-                "    ICONST_5\n" +
-                "    IF_ICMPNE L1\n" +
-                "   L0\n" +
-                "    ICONST_1\n" +
-                "    GOTO L2\n" +
-                "   L1\n" +
-                "    ICONST_0\n" +
-                "   L2\n" +
-                "    INVOKESTATIC com/github/fge/grappa/parsers/BaseParser.ACTION (Z)Lcom/github/fge/grappa/rules/Action;\n" +
-                "    AASTORE\n" +
-                "    INVOKEVIRTUAL com/github/fge/grappa/transform/TestParser.sequence (Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ARETURN\n");
+        assertTraceDumpEquality(processMethod("RuleWithIndirectImplicitAction", processors), "ALOAD 0     BIPUSH 97     INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;     BIPUSH 98     INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;     ICONST_1     ANEWARRAY java/lang/Object     DUP     ICONST_0     ALOAD 0     INVOKEVIRTUAL com/github/fge/grappa/transform/TestParser.action ()Z     IFNE L0     ALOAD 0     GETFIELD com/github/fge/grappa/transform/TestParser.integer : I     ICONST_5     IF_ICMPNE L1    L0     ICONST_1     GOTO L2    L1     ICONST_0    L2     INVOKESTATIC com/github/fge/grappa/parsers/BaseParser.ACTION (Z)Lcom/github/fge/grappa/rules/Action;     AASTORE     INVOKEVIRTUAL com/github/fge/grappa/transform/TestParser.sequence (Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/github/fge/grappa/rules/Rule;     ARETURN");
 
-        assertTraceDumpEquality(processMethod("RuleWithDirectImplicitAction", processors), "" +
-                "    ALOAD 0\n" +
-                "    BIPUSH 97\n" +
-                "    INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/TestParser.integer : I\n" +
-                "    IFNE L0\n" +
-                "    ICONST_1\n" +
-                "    GOTO L1\n" +
-                "   L0\n" +
-                "    ICONST_0\n" +
-                "   L1\n" +
-                "    INVOKESTATIC com/github/fge/grappa/parsers/BaseParser.ACTION (Z)Lcom/github/fge/grappa/rules/Action;\n" +
-                "    ICONST_2\n" +
-                "    ANEWARRAY java/lang/Object\n" +
-                "    DUP\n" +
-                "    ICONST_0\n" +
-                "    BIPUSH 98\n" +
-                "    INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;\n" +
-                "    AASTORE\n" +
-                "    DUP\n" +
-                "    ICONST_1\n" +
-                "    BIPUSH 99\n" +
-                "    INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;\n" +
-                "    AASTORE\n" +
-                "    INVOKEVIRTUAL com/github/fge/grappa/transform/TestParser.sequence (Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ARETURN\n");
+        assertTraceDumpEquality(processMethod("RuleWithDirectImplicitAction", processors), "ALOAD 0     BIPUSH 97     INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;     ALOAD 0     GETFIELD com/github/fge/grappa/transform/TestParser.integer : I     IFNE L0     ICONST_1     GOTO L1    L0     ICONST_0    L1     INVOKESTATIC com/github/fge/grappa/parsers/BaseParser.ACTION (Z)Lcom/github/fge/grappa/rules/Action;     ICONST_2     ANEWARRAY java/lang/Object     DUP     ICONST_0     BIPUSH 98     INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;     AASTORE     DUP     ICONST_1     BIPUSH 99     INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;     AASTORE     INVOKEVIRTUAL com/github/fge/grappa/transform/TestParser.sequence (Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/github/fge/grappa/rules/Rule;     ARETURN");
     }
 
 }

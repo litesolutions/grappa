@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.github.fge.grappa.util.CustomAssertions.shouldHaveThrown;
+import static com.github.fge.grappa.util.CustomAssertions.expectException;
 
 @SuppressWarnings("InstantiatingObjectToGetClassObject")
 public class ErrorDetectionTest extends TransformationTest {
@@ -43,7 +43,7 @@ public class ErrorDetectionTest extends TransformationTest {
 
     @Test
     public synchronized void testRuleWithActionAccessingPrivateField() throws Exception {
-        setup(new BaseParser<Object>() {
+        initializeParserClass(new BaseParser<Object>() {
             private int privateInt = 5;
 
             public Rule RuleWithActionAccessingPrivateField() {
@@ -53,14 +53,14 @@ public class ErrorDetectionTest extends TransformationTest {
 
         try {
             processMethod("RuleWithActionAccessingPrivateField", processors);
-            shouldHaveThrown(InvalidGrammarException.class);
+            expectException(InvalidGrammarException.class);
         } catch (InvalidGrammarException ignored) {
         }
     }
 
     @Test
     public synchronized void testRuleWithActionAccessingPrivateMethod() throws Exception {
-        setup(new BaseParser<Object>() {
+        initializeParserClass(new BaseParser<Object>() {
             public Rule RuleWithActionAccessingPrivateMethod() {
                 return sequence('a', privateAction());
             }
@@ -72,7 +72,7 @@ public class ErrorDetectionTest extends TransformationTest {
 
         try {
             processMethod("RuleWithActionAccessingPrivateMethod", processors);
-            shouldHaveThrown(InvalidGrammarException.class);
+            expectException(InvalidGrammarException.class);
         } catch (InvalidGrammarException ignored) {
         }
     }

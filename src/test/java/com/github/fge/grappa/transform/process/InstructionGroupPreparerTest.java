@@ -41,7 +41,7 @@ public class InstructionGroupPreparerTest extends TransformationTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        setup(TestParser.class);
+        initializeParserClass(TestParser.class);
     }
 
     @Test

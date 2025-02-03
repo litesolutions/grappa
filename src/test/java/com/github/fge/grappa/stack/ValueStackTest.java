@@ -4,6 +4,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.Streams;
+
+import java.util.Arrays;
 
 @Test
 public abstract class ValueStackTest
@@ -38,8 +41,7 @@ public abstract class ValueStackTest
     @Test
     public final void iteratorTest()
     {
-        assertThat(stack.iterator())
-            .containsExactly(o1, o2, o3, o4, o5, o6);
+        assertThat(Streams.stream(stack.iterator())).containsExactly(o1, o2, o3, o4, o5, o6);
     }
 
     @Test

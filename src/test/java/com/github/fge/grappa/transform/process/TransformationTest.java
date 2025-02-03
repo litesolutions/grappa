@@ -29,7 +29,7 @@ public abstract class TransformationTest {
 
     protected ParserClassNode classNode;
 
-    public void setup(final Class<?> parserClass) throws IOException {
+    protected void initializeParserClass(final Class<?> parserClass) throws IOException {
         classNode = new ParserClassNode(parserClass);
         new ClassNodeInitializer().process(classNode);
     }

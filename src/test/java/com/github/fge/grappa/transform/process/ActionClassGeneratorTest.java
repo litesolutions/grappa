@@ -47,7 +47,7 @@ public class ActionClassGeneratorTest extends TransformationTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        setup(TestParser.class);
+        initializeParserClass(TestParser.class);
     }
 
     @Test
@@ -58,140 +58,15 @@ public class ActionClassGeneratorTest extends TransformationTest {
 
         InstructionGroup group = method.getGroups().get(0);
         assertEquals(getClassDump(group.getGroupClassCode())
-            .replaceAll("(?<=\\$)[A-Za-z0-9]{16}", "XXXXXXXXXXXXXXXX"), "" +
-                "// class version 52.0 (52)\n" +
-                "// access flags 0x1011\n" +
-                "public final synthetic class com/github/fge/grappa/transform/VarInit$XXXXXXXXXXXXXXXX extends com/github/fge/grappa/transform/runtime/BaseVarInit  {\n" +
-                "\n" +
-                "\n" +
-                "  // access flags 0x1\n" +
-                "  public <init>(Ljava/lang/String;)V\n" +
-                "    ALOAD 0\n" +
-                "    ALOAD 1\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/transform/runtime/BaseVarInit.<init> (Ljava/lang/String;)V\n" +
-                "    RETURN\n" +
-                "    MAXSTACK = 2\n" +
-                "    MAXLOCALS = 2\n" +
-                "\n" +
-                "  // access flags 0x1\n" +
-                "  public get()Ljava/lang/Object;\n" +
-                "    LDC \"text\"\n" +
-                "    ARETURN\n" +
-                "    MAXSTACK = 1\n" +
-                "    MAXLOCALS = 1\n" +
-                "}\n");
+            .replaceAll("(?<=\\$)[A-Za-z0-9]{16}", "XXXXXXXXXXXXXXXX").replaceAll("\\s+", " ") , "// class version 52.0 (52) // access flags 0x1011 public final synthetic class com/github/fge/grappa/transform/VarInit$XXXXXXXXXXXXXXXX extends com/github/fge/grappa/transform/runtime/BaseVarInit { // access flags 0x1 public <init>(Ljava/lang/String;)V ALOAD 0 ALOAD 1 INVOKESPECIAL com/github/fge/grappa/transform/runtime/BaseVarInit.<init> (Ljava/lang/String;)V RETURN MAXSTACK = 2 MAXLOCALS = 2 // access flags 0x1 public get()Ljava/lang/Object; LDC \"text\" ARETURN MAXSTACK = 1 MAXLOCALS = 1 } ");
 
         group = method.getGroups().get(1);
         assertEquals(getClassDump(group.getGroupClassCode())
-            .replaceAll("(?<=\\$)[A-Za-z0-9]{16}", "XXXXXXXXXXXXXXXX"), "" +
-                "// class version 52.0 (52)\n" +
-                "// access flags 0x1011\n" +
-                "public final synthetic class com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX extends com/github/fge/grappa/transform/runtime/BaseAction  {\n" +
-                "\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic I field$0\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic I field$1\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic I field$2\n" +
-                "\n" +
-                "  // access flags 0x1\n" +
-                "  public <init>(Ljava/lang/String;)V\n" +
-                "    ALOAD 0\n" +
-                "    ALOAD 1\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/transform/runtime/BaseAction.<init> (Ljava/lang/String;)V\n" +
-                "    RETURN\n" +
-                "    MAXSTACK = 2\n" +
-                "    MAXLOCALS = 2\n" +
-                "\n" +
-                "  // access flags 0x1\n" +
-                "  public run(Lcom/github/fge/grappa/run/context/Context;)Z\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$0 : I\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$1 : I\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$2 : I\n" +
-                "    IADD\n" +
-                "    IF_ICMPLE L0\n" +
-                "    ICONST_1\n" +
-                "    GOTO L1\n" +
-                "   L0\n" +
-                "   FRAME SAME\n" +
-                "    ICONST_0\n" +
-                "   L1\n" +
-                "   FRAME SAME1 I\n" +
-                "    IRETURN\n" +
-                "    MAXSTACK = 3\n" +
-                "    MAXLOCALS = 2\n" +
-                "}\n");
+            .replaceAll("(?<=\\$)[A-Za-z0-9]{16}", "XXXXXXXXXXXXXXXX").replaceAll("\\s+", " "), "// class version 52.0 (52) // access flags 0x1011 public final synthetic class com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX extends com/github/fge/grappa/transform/runtime/BaseAction { // access flags 0x1001 public synthetic I field$0 // access flags 0x1001 public synthetic I field$1 // access flags 0x1001 public synthetic I field$2 // access flags 0x1 public <init>(Ljava/lang/String;)V ALOAD 0 ALOAD 1 INVOKESPECIAL com/github/fge/grappa/transform/runtime/BaseAction.<init> (Ljava/lang/String;)V RETURN MAXSTACK = 2 MAXLOCALS = 2 // access flags 0x1 public run(Lcom/github/fge/grappa/run/context/Context;)Z ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$0 : I ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$1 : I ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$2 : I IADD IF_ICMPLE L0 ICONST_1 GOTO L1 L0 FRAME SAME ICONST_0 L1 FRAME SAME1 I IRETURN MAXSTACK = 3 MAXLOCALS = 2 } ");
 
         group = method.getGroups().get(2);
         assertEquals(getClassDump(group.getGroupClassCode())
-            .replaceAll("(?<=\\$)[A-Za-z0-9]{16}", "XXXXXXXXXXXXXXXX"), "" +
-                "// class version 52.0 (52)\n" +
-                "// access flags 0x1011\n" +
-                "public final synthetic class com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX extends com/github/fge/grappa/transform/runtime/BaseAction  {\n" +
-                "\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic Lcom/github/fge/grappa/transform/TestParser$$grappa; field$0\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic I field$1\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic Lcom/github/fge/grappa/support/Var; field$2\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic I field$3\n" +
-                "\n" +
-                "  // access flags 0x1001\n" +
-                "  public synthetic I field$4\n" +
-                "\n" +
-                "  // access flags 0x1\n" +
-                "  public <init>(Ljava/lang/String;)V\n" +
-                "    ALOAD 0\n" +
-                "    ALOAD 1\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/transform/runtime/BaseAction.<init> (Ljava/lang/String;)V\n" +
-                "    RETURN\n" +
-                "    MAXSTACK = 2\n" +
-                "    MAXLOCALS = 2\n" +
-                "\n" +
-                "  // access flags 0x1\n" +
-                "  public run(Lcom/github/fge/grappa/run/context/Context;)Z\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$0 : Lcom/github/fge/grappa/transform/TestParser$$grappa;\n" +
-                "    GETFIELD com/github/fge/grappa/transform/TestParser.integer : I\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$1 : I\n" +
-                "    IADD\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$2 : Lcom/github/fge/grappa/support/Var;\n" +
-                "    INVOKEVIRTUAL com/github/fge/grappa/support/Var.get ()Ljava/lang/Object;\n" +
-                "    CHECKCAST java/lang/String\n" +
-                "    INVOKEVIRTUAL java/lang/String.length ()I\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$3 : I\n" +
-                "    ISUB\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$4 : I\n" +
-                "    ISUB\n" +
-                "    IF_ICMPGE L0\n" +
-                "    ICONST_1\n" +
-                "    GOTO L1\n" +
-                "   L0\n" +
-                "   FRAME SAME\n" +
-                "    ICONST_0\n" +
-                "   L1\n" +
-                "   FRAME SAME1 I\n" +
-                "    IRETURN\n" +
-                "    MAXSTACK = 3\n" +
-                "    MAXLOCALS = 2\n" +
-                "}\n");
+            .replaceAll("(?<=\\$)[A-Za-z0-9]{16}", "XXXXXXXXXXXXXXXX").replaceAll("\\s+", " "), "// class version 52.0 (52) // access flags 0x1011 public final synthetic class com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX extends com/github/fge/grappa/transform/runtime/BaseAction { // access flags 0x1001 public synthetic Lcom/github/fge/grappa/transform/TestParser$$grappa; field$0 // access flags 0x1001 public synthetic I field$1 // access flags 0x1001 public synthetic Lcom/github/fge/grappa/support/Var; field$2 // access flags 0x1001 public synthetic I field$3 // access flags 0x1001 public synthetic I field$4 // access flags 0x1 public <init>(Ljava/lang/String;)V ALOAD 0 ALOAD 1 INVOKESPECIAL com/github/fge/grappa/transform/runtime/BaseAction.<init> (Ljava/lang/String;)V RETURN MAXSTACK = 2 MAXLOCALS = 2 // access flags 0x1 public run(Lcom/github/fge/grappa/run/context/Context;)Z ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$0 : Lcom/github/fge/grappa/transform/TestParser$$grappa; GETFIELD com/github/fge/grappa/transform/TestParser.integer : I ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$1 : I IADD ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$2 : Lcom/github/fge/grappa/support/Var; INVOKEVIRTUAL com/github/fge/grappa/support/Var.get ()Ljava/lang/Object; CHECKCAST java/lang/String INVOKEVIRTUAL java/lang/String.length ()I ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$3 : I ISUB ALOAD 0 GETFIELD com/github/fge/grappa/transform/Action$XXXXXXXXXXXXXXXX.field$4 : I ISUB IF_ICMPGE L0 ICONST_1 GOTO L1 L0 FRAME SAME ICONST_0 L1 FRAME SAME1 I IRETURN MAXSTACK = 3 MAXLOCALS = 2 } ");
     }
 
 }

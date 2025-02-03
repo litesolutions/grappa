@@ -28,113 +28,26 @@ import static com.github.fge.grappa.transform.AsmTestUtils.assertTraceDumpEquali
 
 public class CachingGeneratorTest extends TransformationTest {
 
-    private final List<RuleMethodProcessor> processors = ImmutableList.of(
-            new BodyWithSuperCallReplacer(),
-            new LabellingGenerator(),
-            new CachingGenerator()
-    );
+private final List<RuleMethodProcessor> processors = ImmutableList.of(
+        new BodyWithSuperCallReplacer(),
+        new LabellingGenerator(),
+        new CachingGenerator()
+);
 
-    @BeforeClass
-    public void setup() throws IOException {
-        setup(TestParser.class);
-    }
+@BeforeClass
+public void setup() throws IOException {
+        initializeParserClass(TestParser.class);
+}
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void test() throws Exception {
-        assertTraceDumpEquality(processMethod("RuleWithoutAction", processors), "" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithoutAction : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    DUP\n" +
-                "    IFNULL L0\n" +
-                "    ARETURN\n" +
-                "   L0\n" +
-                "    POP\n" +
-                "    NEW com/github/fge/grappa/matchers/wrap/ProxyMatcher\n" +
-                "    DUP\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.<init> ()V\n" +
-                "    DUP\n" +
-                "    ALOAD 0\n" +
-                "    SWAP\n" +
-                "    PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithoutAction : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ALOAD 0\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/transform/TestParser.RuleWithoutAction ()Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    DUP\n" +
-                "    IFNULL L1\n" +
-                "    LDC \"RuleWithoutAction\"\n" +
-                "    INVOKEINTERFACE com/github/fge/grappa/rules/Rule.label (Ljava/lang/String;)Lcom/github/fge/grappa/rules/Rule;\n" +
-                "   L1\n" +
-                "    DUP_X1\n" +
-                "    CHECKCAST com/github/fge/grappa/matchers/base/Matcher\n" +
-                "    INVOKEVIRTUAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.arm (Lcom/github/fge/grappa/matchers/base/Matcher;)V\n" +
-                "    DUP\n" +
-                "    ALOAD 0\n" +
-                "    SWAP\n" +
-                "    PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithoutAction : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ARETURN\n");
+@SuppressWarnings("unchecked")
+@Test
+public void test() throws Exception {
 
-        assertTraceDumpEquality(processMethod("RuleWithNamedLabel", processors), "" +
-                "  @Lcom/github/fge/grappa/annotations/Label;(value=\"harry\")\n" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithNamedLabel : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    DUP\n" +
-                "    IFNULL L0\n" +
-                "    ARETURN\n" +
-                "   L0\n" +
-                "    POP\n" +
-                "    NEW com/github/fge/grappa/matchers/wrap/ProxyMatcher\n" +
-                "    DUP\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.<init> ()V\n" +
-                "    DUP\n" +
-                "    ALOAD 0\n" +
-                "    SWAP\n" +
-                "    PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithNamedLabel : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ALOAD 0\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/transform/TestParser.RuleWithNamedLabel ()Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    DUP\n" +
-                "    IFNULL L1\n" +
-                "    LDC \"harry\"\n" +
-                "    INVOKEINTERFACE com/github/fge/grappa/rules/Rule.label (Ljava/lang/String;)Lcom/github/fge/grappa/rules/Rule;\n" +
-                "   L1\n" +
-                "    DUP_X1\n" +
-                "    CHECKCAST com/github/fge/grappa/matchers/base/Matcher\n" +
-                "    INVOKEVIRTUAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.arm (Lcom/github/fge/grappa/matchers/base/Matcher;)V\n" +
-                "    DUP\n" +
-                "    ALOAD 0\n" +
-                "    SWAP\n" +
-                "    PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithNamedLabel : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ARETURN\n");
+        assertTraceDumpEquality(processMethod("RuleWithoutAction", processors), "ALOAD 0     GETFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithoutAction : Lcom/github/fge/grappa/rules/Rule;     DUP     IFNULL L0     ARETURN    L0     POP     NEW com/github/fge/grappa/matchers/wrap/ProxyMatcher     DUP     INVOKESPECIAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.<init> ()V     DUP     ALOAD 0     SWAP     PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithoutAction : Lcom/github/fge/grappa/rules/Rule;     ALOAD 0     INVOKESPECIAL com/github/fge/grappa/transform/TestParser.RuleWithoutAction ()Lcom/github/fge/grappa/rules/Rule;     DUP     IFNULL L1     LDC \"RuleWithoutAction\"     INVOKEINTERFACE com/github/fge/grappa/rules/Rule.label (Ljava/lang/String;)Lcom/github/fge/grappa/rules/Rule; (itf)    L1     DUP_X1     CHECKCAST com/github/fge/grappa/matchers/base/Matcher     INVOKEVIRTUAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.arm (Lcom/github/fge/grappa/matchers/base/Matcher;)V     DUP     ALOAD 0     SWAP     PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithoutAction : Lcom/github/fge/grappa/rules/Rule;     ARETURN");
 
-        assertTraceDumpEquality(processMethod("RuleWithLeaf", processors), "" +
-                "    ALOAD 0\n" +
-                "    GETFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithLeaf : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    DUP\n" +
-                "    IFNULL L0\n" +
-                "    ARETURN\n" +
-                "   L0\n" +
-                "    POP\n" +
-                "    NEW com/github/fge/grappa/matchers/wrap/ProxyMatcher\n" +
-                "    DUP\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.<init> ()V\n" +
-                "    DUP\n" +
-                "    ALOAD 0\n" +
-                "    SWAP\n" +
-                "    PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithLeaf : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ALOAD 0\n" +
-                "    INVOKESPECIAL com/github/fge/grappa/transform/TestParser.RuleWithLeaf ()Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    DUP\n" +
-                "    IFNULL L1\n" +
-                "    LDC \"RuleWithLeaf\"\n" +
-                "    INVOKEINTERFACE com/github/fge/grappa/rules/Rule.label (Ljava/lang/String;)Lcom/github/fge/grappa/rules/Rule;\n" +
-                "   L1\n" +
-                "    DUP_X1\n" +
-                "    CHECKCAST com/github/fge/grappa/matchers/base/Matcher\n" +
-                "    INVOKEVIRTUAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.arm (Lcom/github/fge/grappa/matchers/base/Matcher;)V\n" +
-                "    DUP\n" +
-                "    ALOAD 0\n" +
-                "    SWAP\n" +
-                "    PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithLeaf : Lcom/github/fge/grappa/rules/Rule;\n" +
-                "    ARETURN\n");
-    }
+        assertTraceDumpEquality(processMethod("RuleWithNamedLabel", processors), "@Lcom/github/fge/grappa/annotations/Label;(value=\"harry\")     ALOAD 0     GETFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithNamedLabel : Lcom/github/fge/grappa/rules/Rule;     DUP     IFNULL L0     ARETURN    L0     POP     NEW com/github/fge/grappa/matchers/wrap/ProxyMatcher     DUP     INVOKESPECIAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.<init> ()V     DUP     ALOAD 0     SWAP     PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithNamedLabel : Lcom/github/fge/grappa/rules/Rule;     ALOAD 0     INVOKESPECIAL com/github/fge/grappa/transform/TestParser.RuleWithNamedLabel ()Lcom/github/fge/grappa/rules/Rule;     DUP     IFNULL L1     LDC \"harry\"     INVOKEINTERFACE com/github/fge/grappa/rules/Rule.label (Ljava/lang/String;)Lcom/github/fge/grappa/rules/Rule; (itf)    L1     DUP_X1     CHECKCAST com/github/fge/grappa/matchers/base/Matcher     INVOKEVIRTUAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.arm (Lcom/github/fge/grappa/matchers/base/Matcher;)V     DUP     ALOAD 0     SWAP     PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithNamedLabel : Lcom/github/fge/grappa/rules/Rule;     ARETURN");
+
+        assertTraceDumpEquality(processMethod("RuleWithLeaf", processors), "ALOAD 0     GETFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithLeaf : Lcom/github/fge/grappa/rules/Rule;     DUP     IFNULL L0     ARETURN    L0     POP     NEW com/github/fge/grappa/matchers/wrap/ProxyMatcher     DUP     INVOKESPECIAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.<init> ()V     DUP     ALOAD 0     SWAP     PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithLeaf : Lcom/github/fge/grappa/rules/Rule;     ALOAD 0     INVOKESPECIAL com/github/fge/grappa/transform/TestParser.RuleWithLeaf ()Lcom/github/fge/grappa/rules/Rule;     DUP     IFNULL L1     LDC \"RuleWithLeaf\"     INVOKEINTERFACE com/github/fge/grappa/rules/Rule.label (Ljava/lang/String;)Lcom/github/fge/grappa/rules/Rule; (itf)    L1     DUP_X1     CHECKCAST com/github/fge/grappa/matchers/base/Matcher     INVOKEVIRTUAL com/github/fge/grappa/matchers/wrap/ProxyMatcher.arm (Lcom/github/fge/grappa/matchers/base/Matcher;)V     DUP     ALOAD 0     SWAP     PUTFIELD com/github/fge/grappa/transform/TestParser$$grappa.cache$RuleWithLeaf : Lcom/github/fge/grappa/rules/Rule;     ARETURN");
+}
 
 }

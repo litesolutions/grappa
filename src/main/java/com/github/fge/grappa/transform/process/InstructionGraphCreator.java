@@ -66,7 +66,7 @@ public final class InstructionGraphCreator
 
     // TODO: probably needs a rewrite; I have a hunch this is a gross hack
     private static final class RuleMethodAnalyzer
-        extends Analyzer<BasicValue>
+        extends Analyzer
     {
         private final RuleMethodInterpreter interpreter;
 
