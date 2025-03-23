@@ -31,28 +31,13 @@ jobs:
         with:
           fetch-depth: 0
       
-
-      - name: Clear Gradle Wrapper Cache
-        run: |
-          rm -rf ~/.gradle/wrapper/dists/gradle-2.12-all/
-      - name: Clean Gradle Cache
-        run: |
-          rm -rf ~/.gradle
-      - name: Force Gradle Wrapper Download
-        run: |
-          ./gradlew wrapper --gradle-version 8.13
-      
-          
-      # - run: |
-      #     # Fetch all branches explicitly
-      #     git fetch --depth=1 origin +refs/heads/*:refs/remotes/origin/*
-          
-      #     # Fetch all tags explicitly
-      #     git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-          
-      #     # Verify fetched references
-      #     git show-ref
-
+      # - name: Clean Gradle Cache
+      #   run: |
+      #     rm -rf ~/.gradle
+      # - name: Force Gradle Wrapper Download
+      #   run: |
+      #     ./gradlew wrapper --gradle-version 8.13
+ 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -65,15 +50,24 @@ jobs:
         # Set version from build.gradle file
         run: |
           VERSION=$(sed -n 's/^version *= *"\(.*\)"/\1/p' build.gradle)
-          [ $GITHUB_EVENT_NAME == 'release' ] && VERSION=${{ github.event.release.tag_name }} && VERSION=${VERSION/v/}
-          git tag -l | cat
-          [ $GITHUB_EVENT_NAME == 'pull_request' ] && VERSION+=-dev.${{ github.event.pull_request.number }}
-          [ $GITHUB_EVENT_NAME != 'release' ] && VERSION+=-beta && VERSION+=.$(($(git tag -l "v$VERSION.*" | sort -nt. -k4 -k5 2>/dev/null |  tail -1 | rev | cut -d. -f1 | rev)+1))
+          if [ "$GITHUB_EVENT_NAME" == "release" ]; then
+            VERSION=${{ github.event.release.tag_name }}
+            VERSION=${VERSION/v/}
+          elif [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+            VERSION+=-dev.${{ github.event.pull_request.number }}
+          elif [ "$GITHUB_EVENT_NAME" == "push" ]; then
+            git tag -l | cat
+            VERSION+=-beta
+            VERSION+=.$(($(git tag -l "v$VERSION.*" | sort -nt. -k4 -k5 2>/dev/null |  tail -1 | rev | cut -d. -f1 | rev)+1))
+          fi
+         
           echo version=$VERSION >> $GITHUB_OUTPUT
           echo name=grappa-$VERSION >> $GITHUB_OUTPUT
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      # - name: Setup Gradle
+      #   uses: gradle/actions/setup-gradle@v4
+      #   with:
+      #     gradle-version: 8.13
 
       - name: Build with Gradle
         # Pass maven settings file to gradle build command
