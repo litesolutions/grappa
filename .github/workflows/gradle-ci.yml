@@ -82,7 +82,7 @@ jobs:
           prerelease: ${{ github.event_name != 'release' }}
           token: ${{ secrets.GITHUB_TOKEN }} 
           files: |
-            build/distributions/${{ steps.set-version.outputs.name }}.jar
+            build/libs/${{ steps.set-version.outputs.name }}.jar
 
       - name: Publish package
         # specify the artifact to publish
