@@ -44,7 +44,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
-          cache: maven
+          # cache: maven
 
       - name: Set Version
         id: set-version
