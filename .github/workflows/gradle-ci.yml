@@ -1,0 +1,178 @@
+
+name: CI with Gradle
+
+on:
+  push:
+    branches:
+    #  - master
+      - 3.0
+  pull_request:
+    branches:
+    #  - master
+      - 3.0
+  release:
+    types:
+      - released
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'release'
+        with:
+          ref: master
+      - uses: actions/checkout@v4
+        if: github.event_name != 'release'
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: maven
+
+      - name: Set Version
+        id: set-version
+        # Set version from build.gradle file
+        run: |
+          VERSION=$(sed -n 's|.*version.*"\(.*\)"|\1|p' build.gradle)
+          [ $GITHUB_EVENT_NAME == 'release' ] && VERSION=${{ github.event.release.tag_name }} && VERSION=${VERSION/v/}
+          git tag -l | cat
+          [ $GITHUB_EVENT_NAME == 'pull_request' ] && VERSION+=-dev.${{ github.event.pull_request.number }}
+          [ $GITHUB_EVENT_NAME != 'release' ] && VERSION+=-beta && VERSION+=.$(($(git tag -l "v$VERSION.*" | sort -nt. -k4 -k5 2>/dev/null |  tail -1 | rev | cut -d. -f1 | rev)+1))
+          echo version=$VERSION >> $GITHUB_OUTPUT
+          echo name=grappa-$VERSION >> $GITHUB_OUTPUT
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build with Gradle
+        # Pass maven settings file to gradle build command
+        run: |
+          sed -i "s/^version *= *\"[^\"]*\"/version = \"${{ steps.set-version.outputs.version }}\"/" build.gradle
+          ./gradlew build
+        #run: mvn -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml -B package -Drevision=${{ steps.set-version.outputs.version }}
+        env:
+          USER_NAME: ${{ github.actor }}
+          ACCESS_TOKEN: ${{ github.token }}
+
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
+
+      - name: Update Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.set-version.outputs.version }}
+          prerelease: ${{ github.event_name != 'release' }}
+          token: ${{ secrets.GITHUB_TOKEN }} 
+          files: |
+            grappa/target/${{ steps.set-version.outputs.name }}.jar
+
+      - name: Publish package
+        # specify the artifact to publish
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Upload to Nexus plugin
+      #   run: |
+      #     mvn deploy:deploy-file \
+      #       -DgroupId=org.sonarsource.objectscript \
+      #       -DartifactId=sonar-objectscript-plugin \
+      #       -Dversion=${{ steps.set-version.outputs.version }} \
+      #       -Dpackaging=jar \
+      #       -Dfile=sonar-objectscript-plugin/target/sonar-objectscript-plugin-${{ steps.set-version.outputs.version }}.jar \
+      #       -DrepositoryId=nexus \
+      #       -Durl=${{ secrets.NEXUS_URL }} \
+      #       -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml
+      #   env:
+      #     NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      #     NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+
+      # - name: Upload to Nexus testing
+      #   run: |
+      #     mvn deploy:deploy-file \
+      #       -DgroupId=org.sonarsource.objectscript \
+      #       -DartifactId=objectscript-testing \
+      #       -Dversion=${{ steps.set-version.outputs.version }} \
+      #       -Dpackaging=jar \
+      #       -Dfile=objectscript-testing/target/objectscript-testing-${{ steps.set-version.outputs.version }}.jar \
+      #       -DrepositoryId=nexus \
+      #       -Durl=${{ secrets.NEXUS_URL }} \
+      #       -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml
+      #   env:
+      #     NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      #     NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}    
+
+      # - name: Upload to Nexus checks
+      #   run: |
+      #     mvn deploy:deploy-file \
+      #       -DgroupId=org.sonarsource.objectscript \
+      #       -DartifactId=objectscript-checks \
+      #       -Dversion=${{ steps.set-version.outputs.version }} \
+      #       -Dpackaging=jar \
+      #       -Dfile=objectscript-checks/target/objectscript-checks-${{ steps.set-version.outputs.version }}.jar \
+      #       -DrepositoryId=nexus \
+      #       -Durl=${{ secrets.NEXUS_URL }} \
+      #       -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml
+      #   env:
+      #     NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      #     NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}  
+      # - name: Upload to Nexus frontend
+      #   run: |
+      #     mvn deploy:deploy-file \
+      #       -DgroupId=org.sonarsource.objectscript \
+      #       -DartifactId=objectscript-frontend \
+      #       -Dversion=${{ steps.set-version.outputs.version }} \
+      #       -Dpackaging=jar \
+      #       -Dfile=objectscript-frontend/target/objectscript-frontend-${{ steps.set-version.outputs.version }}.jar \
+      #       -DrepositoryId=nexus \
+      #       -Durl=${{ secrets.NEXUS_URL }} \
+      #       -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml
+      #   env:
+      #     NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      #     NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}   
+
+      # - name: Login to Docker Hub
+      #   if: github.event_name != 'pull_request'
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v2
+
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v2
+      #   with:
+      #     platforms: linux/amd64,linux/arm64
+
+      # - name: Docker image
+      #   if: github.event_name != 'pull_request'
+      #   run: |
+      #     mkdir plugins
+      #     cp sonar-objectscript-plugin/target/${{ steps.set-version.outputs.name }}.jar plugins/
+      #     IMAGE=litesolutions/objectscriptquality
+      #     [ $GITHUB_EVENT_NAME == 'release' ] && TAGS="-t ${IMAGE}:latest -t ${IMAGE}:${{ steps.set-version.outputs.version }}"
+      #     [ $GITHUB_EVENT_NAME == 'push' ] && TAGS="-t ${IMAGE}:beta"
+      #     docker buildx build --platform linux/arm64,linux/amd64 ${TAGS} --push .
+
+      - name: Bump release version
+        if: github.event_name == 'release'
+        run: |
+          VERSION=${{ github.event.release.tag_name }} && VERSION=${VERSION/v/}
+          NEXT_VERSION=`echo $VERSION | awk -F. '/[0-9]+\./{$NF++;print}' OFS=.`
+          sed 
+          sed -i "s/^version *= *\"[^\"]*\"/version = \"$NEXT_VERSION\"/" build.gradle
+          git config --global user.name 'ProjectBot'
+          git config --global user.email 'bot@users.noreply.github.com'
+          git add pom.xml
+          git commit -m 'auto bump version with release'
+          git push

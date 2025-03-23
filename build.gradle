@@ -14,6 +14,9 @@ java {
     }
 }
 
+group = "org.litesolutions"
+version = "3.0-SNAPSHOT"
+
 repositories {
     mavenCentral()
 }
@@ -105,7 +108,7 @@ publishing {
         }
     }
     repositories {
-        maven {
+        /*maven {
             name = "sonatype"
             url = version.endsWith("SNAPSHOT") ?
                 "https://oss.sonatype.org/content/repositories/snapshots/" :
@@ -113,6 +116,14 @@ publishing {
             credentials {
                 username = project.findProperty("sonatypeUsername") ?: ""
                 password = project.findProperty("sonatypePassword") ?: ""
+            }
+        }*/
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/litesolutions/grappa"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
