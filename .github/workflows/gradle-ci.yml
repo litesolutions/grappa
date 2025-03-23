@@ -82,7 +82,7 @@ jobs:
           prerelease: ${{ github.event_name != 'release' }}
           token: ${{ secrets.GITHUB_TOKEN }} 
           files: |
-            grappa/target/${{ steps.set-version.outputs.name }}.jar
+            target/${{ steps.set-version.outputs.name }}.jar
 
       - name: Publish package
         # specify the artifact to publish
