@@ -27,15 +27,17 @@ jobs:
           ref: master
       - uses: actions/checkout@v4
         if: github.event_name != 'release'
-      - run: |
-          # Fetch all branches explicitly
-          git fetch --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+        with:
+          fetch-depth: 0
+      # - run: |
+      #     # Fetch all branches explicitly
+      #     git fetch --depth=1 origin +refs/heads/*:refs/remotes/origin/*
           
-          # Fetch all tags explicitly
-          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      #     # Fetch all tags explicitly
+      #     git fetch --depth=1 origin +refs/tags/*:refs/tags/*
           
-          # Verify fetched references
-          git show-ref
+      #     # Verify fetched references
+      #     git show-ref
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
