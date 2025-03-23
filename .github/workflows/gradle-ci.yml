@@ -80,7 +80,7 @@ jobs:
         with:
           tag_name: v${{ steps.set-version.outputs.version }}
           prerelease: ${{ github.event_name != 'release' }}
-          token: ${{ secrets.GITHUB_TOKEN }} 
+       #   token: ${{ secrets.GITHUB_TOKEN }} 
           files: |
             build/libs/${{ steps.set-version.outputs.name }}.jar
 
