@@ -30,7 +30,19 @@ jobs:
         if: github.event_name != 'release'
         with:
           fetch-depth: 0
+      
 
+      - name: Clear Gradle Wrapper Cache
+        run: |
+          rm -rf ~/.gradle/wrapper/dists/gradle-2.12-all/
+      - name: Clean Gradle Cache
+        run: |
+          rm -rf ~/.gradle
+      - name: Force Gradle Wrapper Download
+        run: |
+          ./gradlew wrapper --gradle-version 8.13
+      
+          
       # - run: |
       #     # Fetch all branches explicitly
       #     git fetch --depth=1 origin +refs/heads/*:refs/remotes/origin/*
