@@ -31,12 +31,12 @@ jobs:
         with:
           fetch-depth: 0
       
-      # - name: Clean Gradle Cache
-      #   run: |
-      #     rm -rf ~/.gradle
-      # - name: Force Gradle Wrapper Download
-      #   run: |
-      #     ./gradlew wrapper --gradle-version 8.13
+      - name: Clean Gradle Cache
+        run: |
+          rm -rf ~/.gradle
+      - name: Force Gradle Wrapper Download
+        run: |
+          ./gradlew wrapper --gradle-version 8.13
  
       - name: Set up JDK 17
         uses: actions/setup-java@v4
