@@ -25,10 +25,12 @@ jobs:
         if: github.event_name == 'release'
         with:
           ref: master
+
       - uses: actions/checkout@v4
         if: github.event_name != 'release'
         with:
           fetch-depth: 0
+
       # - run: |
       #     # Fetch all branches explicitly
       #     git fetch --depth=1 origin +refs/heads/*:refs/remotes/origin/*
