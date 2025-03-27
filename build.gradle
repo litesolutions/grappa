@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'application'
     id 'maven-publish'
     id 'signing'
@@ -9,6 +9,8 @@ plugins {
 }
 
 java {
+    withJavadocJar()
+    withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
@@ -103,8 +105,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
         }
     }
     repositories {
