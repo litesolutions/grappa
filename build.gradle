@@ -9,8 +9,6 @@ plugins {
 }
 
 java {
-    withJavadocJar()
-    withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
@@ -89,7 +87,7 @@ shadowJar {
     relocate("com.google.common", "relocated.com.google.common")
 }
 
-tasks.register("sourcesJar", Jar) {
+tasks.named("sourcesJar", Jar).configure {
     dependsOn classes
     archiveClassifier.set("sources")
     from sourceSets.main.allSource
