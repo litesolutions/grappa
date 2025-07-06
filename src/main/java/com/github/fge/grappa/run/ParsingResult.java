@@ -61,7 +61,7 @@ public class ParsingResult<V>
      */
     public boolean isSuccess()
     {
-        return matched && contextIndex == inputBuffer.length();
+        return matched; //&& contextIndex == inputBuffer.length();
     }
 
     /**
