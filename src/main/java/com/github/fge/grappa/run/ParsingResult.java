@@ -61,14 +61,6 @@ public class ParsingResult<V>
      */
     public boolean isSuccess()
     {
-        int index = contextIndex;
-        while (index < inputBuffer.length()) {
-            char c = inputBuffer.charAt(index);
-            if (c != '\n') {
-                return false; // cualquier cosa que no sea '\n' invalida el parseo completo
-            }
-            index++;
-        }
         return matched;
     }
 
