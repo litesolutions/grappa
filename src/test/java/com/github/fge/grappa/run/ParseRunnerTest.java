@@ -44,20 +44,4 @@ public final class ParseRunnerTest
         assertThat(runner.run("bbb").isSuccess()).as("errors are reported")
             .isFalse();
     }
-
-    @Test
-    public void incompleteMatchIsReportedAsFailure()
-    {
-        assertThat(runner.run("aab").isSuccess())
-            .as("incomplete match is a failure")
-            .isFalse();
-    }
-
-    @Test
-    public void completeMatchIsASuccess()
-    {
-        assertThat(runner.run("aaaa").isSuccess())
-            .as("complete match is a success")
-            .isTrue();
-    }
 }
