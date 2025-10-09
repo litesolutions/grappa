@@ -24,7 +24,8 @@ import com.github.fge.grappa.transform.generate.ClassNodeBootstrap;
 import com.github.fge.grappa.transform.generate.ConstructorGenerator;
 import com.github.fge.grappa.transform.generate.VarInitClassGenerator;
 import com.github.fge.grappa.transform.load.ClassLoaderList;
-import com.github.fge.grappa.transform.load.ReflectiveClassLoader;
+import com.github.fge.grappa.transform.load.LookupClassLoader;
+//import com.github.fge.grappa.transform.load.ReflectiveClassLoader;
 import com.github.fge.grappa.transform.process.BodyWithSuperCallReplacer;
 import com.github.fge.grappa.transform.process.CachingGenerator;
 import com.github.fge.grappa.transform.process.ImplicitActionsConverter;
@@ -98,10 +99,14 @@ public final class ParserGenerator<V, P extends BaseParser<V>>
 
         final Class<?> extendedClass;
 
-        try (
+        /*try (
             final ReflectiveClassLoader loader
                 = new ReflectiveClassLoader(parserClass.getClassLoader());
         ) {
+            extendedClass = loader.findClass(name);
+        }*/
+        try (final LookupClassLoader loader =
+                 new LookupClassLoader(parserClass.getClassLoader(), parserClass)) {
             extendedClass = loader.findClass(name);
         }
 
@@ -173,13 +178,20 @@ public final class ParserGenerator<V, P extends BaseParser<V>>
         final String className = node.name.replace('/', '.');
         final byte[] bytecode = node.getClassCode();
 
-        final ClassLoader classLoader = node.getParentClass().getClassLoader();
+        /*final ClassLoader classLoader = node.getParentClass().getClassLoader();
         final Class<?> extendedClass;
 
         try (
             final ReflectiveClassLoader loader
                 = new ReflectiveClassLoader(classLoader);
         ) {
+            extendedClass = loader.loadClass(className, bytecode);
+        }*/
+
+        final Class<?> extendedClass;
+        final Class<?> anchor = node.getParentClass(); // clase del parser base
+        try (final LookupClassLoader loader =
+                 new LookupClassLoader(anchor.getClassLoader(), anchor)) {
             extendedClass = loader.loadClass(className, bytecode);
         }
 
