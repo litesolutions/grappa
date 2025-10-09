@@ -19,7 +19,9 @@ package com.github.fge.grappa.transform.process;
 import com.github.fge.grappa.run.context.Context;
 import com.github.fge.grappa.run.context.ContextAware;
 import com.github.fge.grappa.transform.CodeBlock;
-import com.github.fge.grappa.transform.load.ReflectiveClassLoader;
+//import com.github.fge.grappa.transform.load.ReflectiveClassLoader;
+import com.github.fge.grappa.transform.generate.ActionClassGenerator;
+import com.github.fge.grappa.transform.load.LookupClassLoader;
 import com.github.fge.grappa.transform.base.InstructionGraphNode;
 import com.github.fge.grappa.transform.base.InstructionGroup;
 import com.github.fge.grappa.transform.base.ParserClassNode;
@@ -84,8 +86,8 @@ public abstract class GroupClassGenerator
         final Class<?> groupClass;
 
         try (
-            final ReflectiveClassLoader loader
-                = new ReflectiveClassLoader(classLoader);
+            final LookupClassLoader loader =
+                 new LookupClassLoader(classLoader, classNode.getParentClass());
         ) {
             groupClass = loader.findClass(className);
             if (groupClass == null || forceCodeBuilding) {
