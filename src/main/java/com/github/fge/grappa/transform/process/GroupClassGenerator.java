@@ -88,6 +88,8 @@ public abstract class GroupClassGenerator
         try (
             final LookupClassLoader loader =
                  new LookupClassLoader(classLoader, classNode.getParentClass());
+         /*    final ReflectiveClassLoader loader
+                = new ReflectiveClassLoader(classLoader);*/
         ) {
             groupClass = loader.findClass(className);
             if (groupClass == null || forceCodeBuilding) {

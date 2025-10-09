@@ -69,8 +69,9 @@ public final class LookupClassLoader implements AutoCloseable {
             Class<?> defined = privateLookup.defineClass(bytecode);
             // sanity check opcional: mismo nombre esperado
             if (!defined.getName().equals(className)) {
-                // No pasa nada si difiere (según cómo generes el bytecode),
-                // pero es útil para detectar desajustes de nombre/paquete.
+               throw new ParserTransformException(
+                    "Nombre inesperado. Esperado=" + className + " Definido=" + defined.getName()
+                );
             }
             cache.put(defined.getName(), defined);
             return defined;
