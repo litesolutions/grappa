@@ -16,6 +16,7 @@
 
 package com.github.fge.grappa.transform;
 
+import com.github.fge.grappa.transform.base.InstructionGroup;
 import com.github.fge.grappa.transform.base.ParserClassNode;
 import com.github.fge.grappa.transform.base.RuleMethod;
 import com.github.fge.grappa.transform.load.LookupClassLoader;
@@ -162,32 +163,42 @@ public final class ParserTransformer
         );
     }
 
-    private static void defineExtendedParserClass(final ParserClassNode node)
-    {
-        final ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+private static void defineExtendedParserClass(final ParserClassNode node) {
+    final ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    node.accept(writer);
+    node.setClassCode(writer.toByteArray());
 
-        node.accept(writer);
-        node.setClassCode(writer.toByteArray());
+    final String className = node.name.replace('/', '.');
+    final byte[] bytecode = node.getClassCode();
 
-        final String className = node.name.replace('/', '.');
-        final byte[] bytecode = node.getClassCode();
+    final Class<?> anchor = node.getParentClass();
+    final Class<?> extendedClass;
 
-        /*final ClassLoader classLoader = node.getParentClass().getClassLoader();
-        final Class<?> extendedClass;
-
-        try (
-            final ReflectiveClassLoader loader
-                = new ReflectiveClassLoader(classLoader);
-        ) {
-            extendedClass = loader.loadClass(className, bytecode);
-        }*/
-        final Class<?> extendedClass;
-        final Class<?> anchor = node.getParentClass(); // clase del parser base
-        try (final LookupClassLoader loader =
-                 new LookupClassLoader(anchor.getClassLoader(), anchor)) {
-            extendedClass = loader.loadClass(className, bytecode);
-        }
-
-        node.setExtendedClass(extendedClass);
+    try (final LookupClassLoader loader =
+             new LookupClassLoader(anchor.getClassLoader(), anchor)) {
+        // 1) definir la extendida
+        extendedClass = loader.loadClass(className, bytecode);
     }
+
+    node.setExtendedClass(extendedClass);
+
+    // 2) ⬇️ ahora que $$grappa existe, define TODAS las group classes pendientes
+    try (final LookupClassLoader gLoader =
+             new LookupClassLoader(extendedClass.getClassLoader(), extendedClass)) {
+
+        for (RuleMethod m : node.getRuleMethods().values()) {
+            for (InstructionGroup g : m.getGroups()) {
+                final byte[] gc = g.getGroupClassCode();
+                if (gc != null) {
+                    final String gName = g.getGroupClassType().getClassName();
+                    // evita redefinir si alguien la cargó por cache
+                    if (gLoader.findClass(gName) == null) {
+                        gLoader.loadClass(gName, gc);
+                    }
+                }
+            }
+        }
+    }
+}
+
 }

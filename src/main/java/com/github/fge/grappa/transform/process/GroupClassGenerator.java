@@ -19,6 +19,7 @@ package com.github.fge.grappa.transform.process;
 import com.github.fge.grappa.run.context.Context;
 import com.github.fge.grappa.run.context.ContextAware;
 import com.github.fge.grappa.transform.CodeBlock;
+import com.github.fge.grappa.transform.ParserTransformException;
 //import com.github.fge.grappa.transform.load.ReflectiveClassLoader;
 import com.github.fge.grappa.transform.generate.ActionClassGenerator;
 import com.github.fge.grappa.transform.load.LookupClassLoader;
@@ -76,30 +77,29 @@ public abstract class GroupClassGenerator
 
     protected abstract boolean appliesTo(InstructionGraphNode group);
 
-    private void loadGroupClass(final InstructionGroup group)
-    {
-        createGroupClassType(group);
-        final String className = group.getGroupClassType().getClassName();
-        final ClassLoader classLoader
-            = classNode.getParentClass().getClassLoader();
+private void loadGroupClass(final InstructionGroup group) {
+    createGroupClassType(group);
+    final String className = group.getGroupClassType().getClassName();
 
-        final Class<?> groupClass;
+    final Class<?> anchor =
+        classNode.getExtendedClass() != null
+            ? classNode.getExtendedClass()
+            : classNode.getParentClass();
 
-        try (
-            final LookupClassLoader loader =
-                 new LookupClassLoader(classLoader, classNode.getParentClass());
-         /*    final ReflectiveClassLoader loader
-                = new ReflectiveClassLoader(classLoader);*/
-        ) {
-            groupClass = loader.findClass(className);
-            if (groupClass == null || forceCodeBuilding) {
-                final byte[] groupClassCode = generateGroupClassCode(group);
-                group.setGroupClassCode(groupClassCode);
-                if (groupClass == null)
-                    loader.loadClass(className, groupClassCode);
-            }
+    try (final LookupClassLoader loader =
+             new LookupClassLoader(anchor.getClassLoader(), anchor)) {
+
+        final Class<?> already = loader.findClass(className);
+        if (already == null || forceCodeBuilding) {
+            final byte[] code = generateGroupClassCode(group);
+            group.setGroupClassCode(code);       // ⬅️ sólo guardar
+            // ⛔ nada de loader.loadClass(...) aquí
         }
     }
+}
+
+
+
 
     private void createGroupClassType(final InstructionGroup group)
     {
